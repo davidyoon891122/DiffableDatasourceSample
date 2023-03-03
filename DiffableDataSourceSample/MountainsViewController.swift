@@ -16,6 +16,12 @@ class MountainsViewController: UIViewController {
         return collectionView
     }()
     
+    private lazy var searchBar: UISearchBar = {
+        let searchBar = UISearchBar()
+        searchBar.delegate = self
+        return searchBar
+    }()
+    
     private var mountainsController = MountainsController()
     
     private var dataSource: UICollectionViewDiffableDataSource<Section, MountainsController.Mountain>!
@@ -31,12 +37,33 @@ class MountainsViewController: UIViewController {
 
 }
 
+extension MountainsViewController: UISearchBarDelegate {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        performQuery(with: searchText)
+    }
+}
+
 private extension MountainsViewController {
     func setupViews() {
-        view.addSubview(mountainsCollectionView)
+        [
+            searchBar,
+            mountainsCollectionView
+        ]
+            .forEach {
+                view.addSubview($0)
+            }
+        
+        searchBar.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide)
+            $0.leading.equalToSuperview()
+            $0.trailing.equalToSuperview()
+        }
         
         mountainsCollectionView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
+            $0.top.equalTo(searchBar.snp.bottom)
+            $0.leading.equalToSuperview()
+            $0.trailing.equalToSuperview()
+            $0.bottom.equalToSuperview()
         }
         
     }
@@ -86,7 +113,6 @@ private extension MountainsViewController {
         return layout
     }
 }
-
 
 enum Section: CaseIterable {
     case main
